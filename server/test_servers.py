@@ -96,3 +96,94 @@ def test_search_negative():
             }
         ]
     }
+
+
+from database.lego_database import LegoDatabase
+from models.legoset import LegoSet, create_legoset
+from controllers.lego_set_controller import LegoSetController
+
+def test_legoset_controller_legoset_positive():
+    database = LegoDatabase()
+
+    fake_data = [
+        {
+            "id": 18034,
+            "name": "Gabby's Party Room",
+            "set_number": "10797",
+            "release_year": 2024,
+            "pieces": 259.0,
+            "num_minifigs": 2,
+            "retired": False,
+            "images": []
+        }, 
+        {
+            "id": 18033,
+            "name": "Gabby's Kitty Care Ear",
+            "set_number": "10796",
+            "release_year": 2024,
+            "pieces": 165.0,
+            "num_minifigs": 7,
+            "retired": False,
+            "images": []
+        }
+    ]
+
+    legos = {}
+    for data in fake_data:
+        lego = create_legoset(data)
+        legos[lego.id] = lego
+
+    database.update_database(
+        legos
+    )
+
+    controller = LegoSetController(database)
+
+    legoset_id = 18034
+    lego = controller.get_legoset(legoset_id)
+    assert lego.id == fake_data[0]["id"]
+
+def test_legoset_controller_legoset_negative():
+    database = LegoDatabase()
+
+    fake_data = [
+        {
+            "id": 18034,
+            "name": "Gabby's Party Room",
+            "set_number": "10797",
+            "release_year": 2024,
+            "pieces": 259.0,
+            "num_minifigs": 2,
+            "retired": False,
+            "images": []
+        }, 
+        {
+            "id": 18033,
+            "name": "Gabby's Kitty Care Ear",
+            "set_number": "10796",
+            "release_year": 2024,
+            "pieces": 165.0,
+            "num_minifigs": 7,
+            "retired": False,
+            "images": []
+        }
+    ]
+
+    legos = {}
+    for data in fake_data:
+        lego = create_legoset(data)
+        legos[lego.id] = lego
+
+    database.update_database(
+        legos
+    )
+    
+    controller = LegoSetController(database)
+
+    legoset_id = 123
+    exception_string = None
+    try:
+        lego = controller.get_legoset(legoset_id)
+    except Exception as e:
+        exception_string = str(e)
+    assert exception_string == f"Lego Set {legoset_id} Not Found"
