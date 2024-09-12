@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Response, status
 from database.lego_database import LegoDatabase
 from typing import Optional
 from controllers.lego_set_controller import LegoSetController
@@ -9,8 +9,6 @@ from config import LegoConfig
 from parsers.lego_parser import LegoParser
 from observers.github_file_retriever import GithubFileRetriever
 from monitors.github_monitor import GithubMonitor
-import asyncio
-from contextlib import asynccontextmanager
 
 
 app = FastAPI()
@@ -58,7 +56,7 @@ def run_monitors():
 run_monitors()
 
 @app.get("/legoset/{id}")
-def get_legoset(id: int):
+def get_legoset(id: int, response: Response):
     """
     This route retrieves a legoset by an id.
     """
@@ -74,7 +72,10 @@ def get_legoset(id: int):
                 "legoset": results
             }
         }
-    except Exception as e: 
+    except Exception as e:
+        if str(e) == f"Lego Set {id} Not Found":
+            response.status_code = status.HTTP_404_NOT_FOUND
+        
         return {
             "success": False,
             "message": "Unable to complete request",
